@@ -11,6 +11,17 @@ from datetime import datetime
 from rag_utils import search
 from dotenv import load_dotenv
 load_dotenv()
+from transformers import pipeline
+# Load zero-shot classifier (you can fine-tune later)
+intent_classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
+
+
+
+
+
+import spacy
+nlp = spacy.load("en_core_web_sm")
+
 
 import os
 
@@ -38,8 +49,6 @@ def load_user(user_id):
     user_data = mongo.db.users.find_one({"_id": ObjectId(user_id)})
     return User(user_data) if user_data else None
 
-# app = Flask(__name__)
-# CORS(app)
 
 
 
@@ -110,50 +119,94 @@ def logout():
 
 ##########################################################################
 
+INTENT_LABELS = [
+    "ask about legal rights",
+    "report a violation",
+    "request legal procedure",
+    "seek penalty information",
+    "general question",
+    "case law request"
+]
 
 @app.route("/api/chat", methods=["POST"])
 @login_required
 def chat():
     user_input = request.json.get("message")
-
-    # 1. Retrieve relevant legal content from FAISS
-    retrieved_docs = search(user_input)
-    context = "\n\n".join(retrieved_docs)
-
-    # 2. Include retrieved context in prompt
-    headers = {
-        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-        "Content-Type": "application/json",
-        "HTTP-Referer": "http://localhost:5173", 
-        "X-Title": "legaadvisor"
-    }
-
-    data = {
-        "model": MODEL,
-        "messages": [
-            {"role": "system", "content": "You are a helpful legal assistant. Provide non-binding legal guidance based on Nigerian law."},
-            {"role": "user", "content": f"Relevant law:\n{context}\n\nUser's question: {user_input}"}
-        ]
-    }
+    if not user_input:
+        return jsonify({"error": "Message is required"}), 400
 
     try:
+        # 1. Intent Detection (Zero-Shot Classification)
+        intent_result = intent_classifier(user_input, INTENT_LABELS)
+        top_intent = intent_result["labels"][0]
+        confidence = intent_result["scores"][0]
+
+        # 2. Named Entity Recognition (NER)
+        doc = nlp(user_input)
+        tokens = [token.text for token in doc]
+        entities = [(ent.text, ent.label_) for ent in doc.ents]
+        ner_summary = "\n".join([f"{text} ({label})" for text, label in entities]) or "None"
+
+        # 3. Retrieve Relevant Context from FAISS
+        retrieved_docs = search(user_input)
+        if retrieved_docs:
+            context = "\n\n".join(retrieved_docs)
+            system_prompt = (
+                "You are a helpful legal assistant. Provide non-binding legal advice based on Nigerian law. "
+                "Use the provided context to guide your answer."
+            )
+            user_prompt = (
+                f"Relevant Law:\n{context}\n\n"
+                f"Extracted Entities:\n{ner_summary}\n\n"
+                f"User's Question: {user_input}"
+            )
+        else:
+            system_prompt = (
+                "You are a helpful legal assistant. Provide general non-binding legal advice under Nigerian law."
+            )
+            user_prompt = (
+                f"Extracted Entities:\n{ner_summary}\n\n"
+                f"User's Question: {user_input}"
+            )
+
+        # 4. Prepare Request to OpenRouter
+        headers = {
+            "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+            "Content-Type": "application/json",
+            "HTTP-Referer": "http://localhost:5173",  # Or your frontend domain
+            "X-Title": "legaladvisor"
+        }
+
+        data = {
+            "model": MODEL,
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ]
+        }
+
+        # 5. Call OpenRouter API
         response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data)
         result = response.json()
         reply = result["choices"][0]["message"]["content"]
 
-        # 3. Save chat to MongoDB
+        # 6. Save Chat to MongoDB
         mongo.db.chats.insert_one({
             "user_id": ObjectId(current_user.id),
             "message": user_input,
             "response": reply,
+            "intent": top_intent,
+            "confidence": confidence,
+            "entities": entities,
             "timestamp": datetime.utcnow()
         })
 
         return jsonify({"response": reply})
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-    
+
 ##########################################################################
 
 @app.route("/api/history", methods=["GET"])

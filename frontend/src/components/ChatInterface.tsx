@@ -3,7 +3,7 @@ import Message from './Message';
 import MessageInput from './MessageInput';
 import { AlertTriangle, Sparkles, Zap } from 'lucide-react';
 import { ChatMessage } from '../types';
-import { fetchChatResponse } from '../api/chat'; // ⬅️ import the new API helper
+import { fetchChatResponse } from '../api/chat'; // import the new API helper
 
 
 export default function ChatInterface() {
