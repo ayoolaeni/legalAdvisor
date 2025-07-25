@@ -30,7 +30,7 @@ CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
 
 
 # MongoDB Config
-app.config["MONGO_URI"] =  os.getenv("MONGO_URI") # Or use your Atlas URI
+app.config["MONGO_URI"] =  os.getenv("MONGO_URI") 
 app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
 
 mongo = PyMongo(app)
@@ -150,10 +150,14 @@ def chat():
         # 3. Retrieve Relevant Context from FAISS
         retrieved_docs = search(user_input)
         if retrieved_docs:
-            context = "\n\n".join(retrieved_docs)
+            context = "\n\n".join(
+                [f"{doc['title']}:\n{doc['text']}" for doc in retrieved_docs]
+            )
+
+
             system_prompt = (
-                "You are a helpful legal assistant. Provide non-binding legal advice based on Nigerian law. "
-                "Use the provided context to guide your answer."
+                  "You are a helpful legal assistant trained on Nigerian legal texts, including the Constitution, Labour Act, and Criminal Code. "
+                  "Use the retrieved laws to explain and answer questions accurately. Do not refer to them as 'provided by the user'."
             )
             user_prompt = (
                 f"Relevant Law:\n{context}\n\n"

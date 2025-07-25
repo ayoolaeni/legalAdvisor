@@ -81,7 +81,7 @@ export default function ChatInterface() {
                 AI-Powered Legal Assistant
               </div>
               <h2 className="text-3xl font-bold text-gray-900 mb-2">How can I help you today?</h2>
-              <p className="text-lg text-gray-600 max-w-md mx-auto">
+              <p className="text-xl text-gray-600 max-w-md mx-auto">
                 Ask me about contracts, compliance, legal research, or any other legal questions you may have.
               </p>
             </div>
@@ -102,7 +102,7 @@ export default function ChatInterface() {
                 <Zap className="h-5 w-5" />
               </div>
               <div className="bg-white border border-gray-200 rounded-2xl rounded-bl-md px-6 py-4 shadow-sm max-w-xs">
-                <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+                <div className="flex items-center gap-2 text-xl text-gray-600 mb-2">
                   <Sparkles className="h-4 w-4 animate-pulse" />
                   <span>AI is thinking...</span>
                 </div>

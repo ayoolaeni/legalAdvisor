@@ -45,7 +45,7 @@ export default function Message({ content, isUser, timestamp }: MessageProps) {
                     isUser ? 'text-gray-100' : 'text-gray-700'
                   }`}>
                     <span className="text-blue-500 mt-1">•</span>
-                    <span className="text-sm">{line.substring(2)}</span>
+                    <span className="text-xl">{line.substring(2)}</span>
                   </div>
                 );
               }
@@ -59,7 +59,7 @@ export default function Message({ content, isUser, timestamp }: MessageProps) {
                 );
               }
               return line ? (
-                <p key={index} className={`text-sm leading-relaxed mb-2 last:mb-0 ${
+                <p key={index} className={`text-xl leading-relaxed mb-2 last:mb-0 ${
                   isUser ? 'text-gray-100' : 'text-gray-700'
                 }`}>
                   {line}
@@ -74,7 +74,7 @@ export default function Message({ content, isUser, timestamp }: MessageProps) {
         <div className={`flex items-center gap-2 mt-2 ${
           isUser ? 'justify-end' : 'justify-start'
         }`}>
-          <span className="text-xs text-gray-500">{timestamp}</span>
+          <span className="text-xl text-gray-500">{timestamp}</span>
           {!isUser && (
             <div className="flex items-center gap-1">
               <button
