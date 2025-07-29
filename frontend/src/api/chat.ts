@@ -1,7 +1,7 @@
 // src/api/chat.ts
 export const fetchChatResponse = async (message: string): Promise<string> => {
   try {
-    const response = await fetch('http://localhost:5000/api/chat', {
+    const response = await fetch('http://localhost:5200/api/chat', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

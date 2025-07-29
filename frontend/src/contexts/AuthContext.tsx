@@ -22,7 +22,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const login = async (email: string, password: string): Promise<void> => {
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:5000/login', {
+      const response = await fetch('http://localhost:5200/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -56,7 +56,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 const signup = async (name: string, email: string, password: string): Promise<void> => {
   setIsLoading(true);
   try {
-    const response = await fetch('http://localhost:5000/register', {
+    const response = await fetch('http://localhost:5200/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
@@ -77,7 +77,7 @@ const signup = async (name: string, email: string, password: string): Promise<vo
 
 
   const logout = async () => {
-  await fetch('http://localhost:5000/logout', {
+  await fetch('http://localhost:5200/logout', {
     method: 'POST',
     credentials: 'include'
   });

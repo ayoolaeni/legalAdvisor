@@ -12,7 +12,7 @@ export default function ChatHistory() {
   // ✅ Fetch real chat history from backend
   const fetchHistory = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/history', {
+      const response = await fetch('http://localhost:5200/api/history', {
         method: 'GET',
         credentials: 'include',
       });
@@ -44,7 +44,7 @@ export default function ChatHistory() {
 
   const handleDeleteChat = async (sessionId: string) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/history/${sessionId}`, {
+      const response = await fetch(`http://localhost:5200/api/history/${sessionId}`, {
         method: 'DELETE',
         credentials: 'include',
       });

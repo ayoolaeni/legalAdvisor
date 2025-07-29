@@ -156,9 +156,14 @@ def chat():
 
 
             system_prompt = (
-                  "You are a helpful legal assistant trained on Nigerian legal texts, including the Constitution, Labour Act, and Criminal Code. "
-                  "Use the retrieved laws to explain and answer questions accurately. Do not refer to them as 'provided by the user'."
+                "You are a professional legal advisor with expertise in Nigerian law. "
+                "Respond with clarity, confidence, and precision. Do not use vague or passive phrases like 'I believe', 'I'm afraid', or 'it appears'. "
+                "Avoid referencing the user’s input or any 'documents provided'. "
+                "State facts directly and authoritatively as a legal professional would when advising a client or writing a legal brief. "
+                "If a topic is not covered in the retrieved law sections, state that clearly and reference the correct applicable laws or regulations in Nigeria, if known."
             )
+
+
             user_prompt = (
                 f"Relevant Law:\n{context}\n\n"
                 f"Extracted Entities:\n{ner_summary}\n\n"
@@ -166,12 +171,17 @@ def chat():
             )
         else:
             system_prompt = (
-                "You are a helpful legal assistant. Provide general non-binding legal advice under Nigerian law."
-            )
+                    "You are a professional legal advisor with expertise in Nigerian law. "
+                    "The user’s question could not be matched with any provided legal documents. "
+                    "If the topic is covered under known Nigerian laws, cite the correct legal frameworks (such as the NITDA Act, Criminal Code, NDPR, Constitution, etc). "
+                    "Avoid speculative answers. Respond as a real lawyer would: clearly, confidently, and factually, using only recognized Nigerian legal sources."
+                )
             user_prompt = (
                 f"Extracted Entities:\n{ner_summary}\n\n"
                 f"User's Question: {user_input}"
             )
+
+            
 
         # 4. Prepare Request to OpenRouter
         headers = {
@@ -273,5 +283,5 @@ def get_profile():
 ##########################################################################
 
 
-if __name__ == "__main__":
-    app.run(debug=True)
+if __name__ == '__main__':
+    app.run(port=5200)
